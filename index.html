@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="all.min.css" />
+    <title>Liam Dobbelaere</title>
+    <style>
+      html {
+        padding: 32px;
+      }
+
+      body {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      h1 {
+        text-align: left;
+      }
+
+      img {
+        cursor: pointer;
+        box-shadow: none;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+        transform: scale(1);
+      }
+
+      img:hover {
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.8);
+        transform: scale(1.01);
+      }
+
+      blockquote {
+        margin: 0;
+      }
+
+      blockquote::before {
+        content: "";
+      }
+
+      blockquote p:first-child {
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script src="marked.min.js"></script>
+    <script>
+      fetch("public.txt")
+        .then((response) => response.text())
+        .then(async (publicList) => {
+          const posts = publicList.split("\n");
+
+          for (let post of posts) {
+            const postSplit = post.split("-");
+            const date = postSplit.slice(-3).join("/").replace(".md", "");
+
+            console.log("Fetching " + post);
+
+            const response = await fetch(`posts/${post}`);
+            let text = await response.text();
+
+            text =
+              text +
+              "\n\n <sub class='post-footer'>Posted on " +
+              date +
+              " by Liam</sub>";
+            console.log(text);
+
+            document.getElementById("content").innerHTML += marked.parse(text);
+          }
+
+          registerImageClickHandler();
+        });
+
+      function registerImageClickHandler() {
+        // open images in new tab when clicked
+        const images = document.querySelectorAll("img");
+        images.forEach((image) => {
+          image.addEventListener("click", () => {
+            window.open(image.src, "_blank");
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
