@@ -3,21 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="all.min.css" />
+    <link rel="stylesheet" href="sakura-dark.css" />
+
     <title>Liam Dobbelaere</title>
     <style>
-      html {
-        padding: 32px;
+      body {
+        background-color: #111111;
       }
 
-      body {
-        max-width: 600px;
-        margin-left: auto;
+      .tagset {
+        border-radius: 8px;
+        opacity: 0.5;
+      }
+
+      #toc {
         margin-right: auto;
+      }
+
+      article {
+        background-color: #222222;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.8);
+        padding: 16px;
+        margin-bottom: 64px;
+      }
+
+      #toc ul {
+        list-style-type: square;
+        margin: 0;
       }
 
       h1 {
         text-align: left;
+        margin-top: 0px;
       }
 
       img {
@@ -31,21 +48,10 @@
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.8);
         transform: scale(1.01);
       }
-
-      blockquote {
-        margin: 0;
-      }
-
-      blockquote::before {
-        content: "";
-      }
-
-      blockquote p:first-child {
-        margin-top: 4px;
-      }
     </style>
   </head>
   <body>
+    <article id="toc"></article>
     <div id="content"></div>
     <script src="marked.min.js"></script>
     <script>
@@ -53,6 +59,7 @@
         .then((response) => response.text())
         .then(async (publicList) => {
           const posts = publicList.split("\n");
+          posts.reverse();
 
           for (let post of posts) {
             const postSplit = post.split("-");
@@ -70,10 +77,12 @@
               " by Liam</sub>";
             console.log(text);
 
-            document.getElementById("content").innerHTML += marked.parse(text);
+            document.getElementById("content").innerHTML +=
+              "<article>" + marked.parse(text) + "</article>";
           }
 
           registerImageClickHandler();
+          buildTOC();
         });
 
       function registerImageClickHandler() {
@@ -84,6 +93,24 @@
             window.open(image.src, "_blank");
           });
         });
+      }
+
+      function buildTOC() {
+        const h1s = document.querySelectorAll("h1");
+        const toc = document.getElementById("toc");
+
+        let tocHtml = "<h1>Table of Contents</h1><ul>";
+
+        h1s.forEach((h1) => {
+          const id = h1.textContent.toLowerCase().replace(/ /g, "-");
+          h1.id = id;
+
+          tocHtml += `<li><a href="#${id}">${h1.textContent}</a></li>`;
+        });
+
+        tocHtml += "</ul>";
+
+        toc.innerHTML = tocHtml;
       }
     </script>
   </body>
